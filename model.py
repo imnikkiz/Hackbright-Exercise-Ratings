@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
+from sqlalchemy import Column, Integer, DateTime, String, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker, relationship, backref, scoped_session
 
 engine = create_engine("sqlite:///ratings.db", echo=True)
@@ -9,11 +9,14 @@ session = scoped_session(sessionmaker(bind=engine,
 Base = declarative_base()
 Base.query = session.query_property()
 
+# To recreate db, run:
+# Base.metadata.create_all(engine)
+
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key = True)
-    email = Column(String(64), nullable=True)
+    email = Column(String(64), nullable=True, unique=True)
     password = Column(String(64), nullable=True)
     age = Column(Integer, nullable=True)
     zipcode = Column(String(15), nullable=True)
@@ -23,7 +26,7 @@ class Movie(Base):
 
     id = Column(Integer, primary_key = True)
     title = Column(String(64))
-    released_at = Column(Integer, nullable=True)
+    released_at = Column(DateTime, nullable=True)
     imdb_url = Column(String(64), nullable=True)
 
 class Rating(Base):
@@ -39,8 +42,8 @@ class Rating(Base):
 
 
 def main():
-    # session = connect()
     pass
+
 
 if __name__ == "__main__":
     main()

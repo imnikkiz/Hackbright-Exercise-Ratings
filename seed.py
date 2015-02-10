@@ -1,5 +1,7 @@
 import model
 import csv
+from datetime import datetime
+import time
 
 def load_users(session):
     with open("./seed_data/u.user") as user_file:
@@ -14,7 +16,6 @@ def load_users(session):
             session.add(user)
     session.commit()
 
-
 def load_movies(session):
     with open("./seed_data/u.item") as movie_file:
         for line in movie_file:
@@ -22,8 +23,16 @@ def load_movies(session):
             line = line.split("|")
             
             movie = model.Movie()
-            movie.title = line[1].decode("latin-1")
-            movie.release_date = line[2].decode("latin-1")
+
+            title_date = line[1].decode("latin-1")
+            title_date = title_date.split("(")
+            movie.title = title_date[0].strip()
+
+
+            release_date = line[2].decode("latin-1")
+            if release_date != "":
+                movie.released_at = datetime.strptime(release_date, "%d-%b-%Y")
+
             movie.imdb_url = line[4].decode("latin-1")
 
             session.add(movie)
@@ -52,5 +61,4 @@ def main(session):
     load_ratings(session)
 
 if __name__ == "__main__":
-    s = model.connect()
-    main(s)
+    main(model.session)
