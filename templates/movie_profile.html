@@ -1,4 +1,7 @@
 {% extends "template.html" %}
+{% block style %}
+    <title></title>
+{% endblock %}
 {% block content %}
-
+    <h4>{{ movie.title }} has {{ movie.ratings|length }} ratings.</h4>
 {% endblock %}

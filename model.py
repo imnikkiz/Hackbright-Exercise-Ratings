@@ -21,6 +21,10 @@ class User(Base):
     age = Column(Integer, nullable=True)
     zipcode = Column(String(15), nullable=True)
 
+    def __repr__(self):
+        return "<User id=%d email=%s password=%s age=%d zipcode=%s" % (
+            self.id, self.email, self.password, self.age, self.zipcode)
+
 class Movie(Base):
     __tablename__ = "movies"
 
@@ -28,6 +32,10 @@ class Movie(Base):
     title = Column(String(64))
     released_at = Column(DateTime, nullable=True)
     imdb_url = Column(String(64), nullable=True)
+
+    def __repr__(self):
+        return "<Movie id=%d title=%s released_at=%s imdb_url=%s" % (
+            self.id, self.title, str(self.released_at), self.imdb_url)
 
 class Rating(Base):
     __tablename__ = "ratings"
