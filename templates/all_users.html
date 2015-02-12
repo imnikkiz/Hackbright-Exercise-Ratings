@@ -5,6 +5,6 @@
 {% block content %}
     <h1>All Users</h1>
     {% for user in users %}
-    <h4>User <a href="/user_profile?email={{ user.email }}">{{ user.email }}</a> has {{ user.ratings|length }} ratings.</h4>
+    <h4>User <a href="/user_profile?email={{ user.email }}">{{ user.email }}</a> has {{ user.ratings|length }} rating(s).</h4>
     {% endfor %}
 {% endblock %}

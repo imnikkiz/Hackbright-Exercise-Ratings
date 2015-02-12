@@ -4,34 +4,58 @@
 {% endblock %}
 {% block content %}
     <h1>{{ movie.title }}</h1>
-    <h4>{{ movie.title }} has {{ movie.ratings|length }} ratings. The average rating is {{ '%0.2f' % ((movie.ratings|sum(attribute='rating')) / (movie.ratings|length)) }}</h4>
+    <h4>{{ movie.title }} has {{ movie.ratings|length }} ratings. The average rating is {{ '%0.2f' % ((movie.ratings|sum(attribute='rating')) / (movie.ratings|length)) }}.</h4>
 
     <!-- show rating and update form if user is signed in and has NOT rated the movie -->
     {% if session.get('user_email') %}
-
+        {% if rating %}
+        <h4> Your current rating is {{ rating.rating }} </h4>
+        <form action="/update_rating" method="get">
+            <div class="form-group">
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio1" value="1"> 1
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio2" value="2"> 2
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="3"> 3
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="4"> 4
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="5"> 5
+                </label>
+            </div>
+            <input type='hidden' name='movie_id' value='{{ movie.id }}'>
+            <button type="submit" class="btn btn-default">Update!</button>
+        </form>
+        {% endif %}
 
     <!--show form if user is signed in AND hasn't rated a movie -->
-
-    <form action="/rate_movie" method="get">
-        <div class="form-group">
-            <label class="radio-inline">
-                <input type="radio" name="rating" id="inlineRadio1" value="1"> 1
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="rating" id="inlineRadio2" value="2"> 2
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="rating" id="inlineRadio3" value="3"> 3
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="rating" id="inlineRadio3" value="4"> 4
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="rating" id="inlineRadio3" value="5"> 5
-            </label>
-        </div>
-        <input type='hidden' name='movie_id' value='{{ movie.id }}'>
-        <button type="submit" class="btn btn-default">Rate!</button>
-    </form>
+        {% if not rating %}
+        <form action="/rate_movie" method="get">
+            <div class="form-group">
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio1" value="1"> 1
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio2" value="2"> 2
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="3"> 3
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="4"> 4
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="rating" id="inlineRadio3" value="5"> 5
+                </label>
+            </div>
+            <input type='hidden' name='movie_id' value='{{ movie.id }}'>
+            <button type="submit" class="btn btn-default">Rate!</button>
+        </form>
+        {% endif %}
     {% endif %}
 {% endblock %}

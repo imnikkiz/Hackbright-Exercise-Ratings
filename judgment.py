@@ -3,6 +3,7 @@ import model
 import os
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.sql import func
+from sqlalchemy import update
 
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET_KEY']
@@ -49,7 +50,7 @@ def signup():
 
 @app.route("/login", methods=["GET"])
 def show_login():
-    if session.get('user'):
+    if session.get('user_email'):
         flash("You have successfully logged out.")
         session.clear()
     return render_template("login.html")
@@ -89,8 +90,15 @@ def show_user_profile():
     users = model.session.query(model.User)
     user = users.filter(model.User.email == email).one()
     heading = "%s's Profile" % (email)
+
+    ratings = model.session.query(model.Rating)
+    user_ratings = ratings.filter(model.Rating.user_id == user.id).all()
+
+
     return render_template("user_profile.html", user=user, 
-                                                heading=heading)
+                                                heading=heading,
+                                                ratings=user_ratings)
+
 
 @app.route("/my_profile")
 def show_my_profile():
@@ -99,8 +107,13 @@ def show_my_profile():
         users = model.session.query(model.User)
         user = users.filter(model.User.email == email).one()
         heading = "My Profile"
+
+        ratings = model.session.query(model.Rating)
+        user_ratings = ratings.filter(model.Rating.user_id == user.id).all()
+
         return render_template("user_profile.html", user=user,
-                                                    heading=heading)
+                                                    heading=heading,
+                                                    ratings=user_ratings)
     flash("Please log in.")
     return show_login()
 
@@ -123,15 +136,23 @@ def show_all_movies():
     return render_template("all_movies.html", movies=movies_list)
 
 @app.route("/movie_profile", methods=["GET"])
-def show_movie_profile():
-    title = request.args.get("title")
+def show_movie_profile(movie_id=None):
+    if movie_id:
+        movies = model.session.query(model.Movie)
+        movie = movies.filter(model.Movie.id == movie_id).one()
+        title = movie.title
+    else:
+        title = request.args.get("title")
+
     movies = model.session.query(model.Movie)
     movie = movies.filter(model.Movie.title == title).one()
 
-    # check user.ratings to see if there's 
-    # a rating with movie_id == movie.id
+    ratings = model.session.query(model.Rating)
+    movie_ratings = ratings.filter(model.Rating.movie_id == movie.id)
+    user_rating = movie_ratings.filter(model.Rating.user_id == session.get('user_id')).first()
 
-    return render_template("movie_profile.html", movie=movie)
+    return render_template("movie_profile.html", movie=movie,
+                                                 rating=user_rating)
 
 # Rate Movie
 
@@ -148,8 +169,24 @@ def rate_movie():
     model.session.commit()
 
     flash("Rating successful")
-    return render_template("welcome.html")
+    return show_movie_profile(movie_id=movie_id)
 
+@app.route("/update_rating", methods=['GET'])
+def update_movie():
+    rating = request.args.get("rating")
+    movie_id = request.args.get("movie_id")
+    user_id = session.get('user_id')
+
+
+    model.session.query(model.Rating).\
+        filter(model.Rating.movie_id == movie_id,
+            model.Rating.user_id == user_id).\
+        update({"rating": rating})
+    
+    model.session.commit()
+
+    flash("update successful")
+    return show_movie_profile(movie_id=movie_id)
 
 
 

@@ -7,7 +7,7 @@
     {% for movie in movies %}
     <h4> <a href="/movie_profile?title={{ movie.title }}">{{ movie.title }}</a> has {{ movie.ratings|length }} ratings. The average rating is {{ '%0.2f' % ((movie.ratings|sum(attribute='rating')) / (movie.ratings|length)) }}. </h4>
     {% endfor %}
-    {% if session.get('user') %}
+    {% if session.get('user_email') %}
     <a href="/all_movies">Show me more Movies!</a>
     {% else %}
     <h5> Sign in to see more movies! </h5>

@@ -22,7 +22,7 @@ class User(Base):
     zipcode = Column(String(15), nullable=True)
 
     def __repr__(self):
-        return "<User id=%d email=%s password=%s age=%d zipcode=%s" % (
+        return "<User id=%d email=%s password=%s age=%d zipcode=%s>" % (
             self.id, self.email, self.password, self.age, self.zipcode)
 
 class Movie(Base):
@@ -34,7 +34,7 @@ class Movie(Base):
     imdb_url = Column(String(64), nullable=True)
 
     def __repr__(self):
-        return "<Movie id=%d title=%s released_at=%s imdb_url=%s" % (
+        return "<Movie id=%d title=%s released_at=%s imdb_url=%s>" % (
             self.id, self.title, str(self.released_at), self.imdb_url)
 
 class Rating(Base):
@@ -48,6 +48,10 @@ class Rating(Base):
     user = relationship("User", backref=backref("ratings", order_by=id))
     movie = relationship("Movie", backref=backref("ratings", order_by=id))
 
+    def __repr__(self):
+        return "<Rating id=%d movie_id=%d user_id=%d rating=%d user=%s movie=%s>" % (
+            self.id, self.movie_id, self.user_id, self.rating, self.user, self.movie)
+
 
 def main():
     pass
@@ -58,4 +62,3 @@ if __name__ == "__main__":
 
 # TODO
 # datetime format
-# rating repr

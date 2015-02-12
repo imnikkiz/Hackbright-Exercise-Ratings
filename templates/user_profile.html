@@ -4,5 +4,8 @@
 {% endblock %}
 {% block content %}
     <h1>{{ heading }}</h1>
-    <h4>User {{ user.email }} has {{ user.ratings|length }} ratings.</h4>
+    <h4>User {{ user.email }} has {{ user.ratings|length }} rating(s).</h4>
+    {% for rating in ratings %}
+    <h4><a href="/movie_profile?title={{ rating.movie.title }}">{{ rating.movie.title }}</a> is currently rated {{ rating.rating }}</h4>
+    {% endfor %}
 {% endblock %}
