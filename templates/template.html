@@ -26,7 +26,7 @@
                     <li><a href="/all_movies">All Movies</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    {% if session.get('user') %}
+                    {% if session.get('user_email') %}
                     <li><a href="/login" id="login">Log Out</a></li>
                     {%else%}
                     <li><a href="/login" id="login">Log In</a></li>

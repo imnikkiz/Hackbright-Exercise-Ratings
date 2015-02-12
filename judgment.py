@@ -41,7 +41,7 @@ def signup():
         return show_signup()
 
     flash("Signup successful")
-    session['user'] = user_email
+    session['user_email'] = user_email
     return render_template("welcome.html")
 
 # Log In / Log Out
@@ -58,8 +58,8 @@ def show_login():
 def login():
     user_email = request.form.get('email')
     user_password = request.form.get('password')
-    users = model.session.query(model.User)
 
+    users = model.session.query(model.User)
     try:
         user = users.filter(model.User.email==user_email,
                             model.User.password==user_password
@@ -69,7 +69,8 @@ def login():
             "Please check your login credentials or sign up.")
         return render_template("login.html")
 
-    session['user'] = user_email
+    session['user_email'] = user.email
+    session['user_id'] = user.id
     session['count'] = 0
     
     return render_template("welcome.html")
@@ -93,8 +94,8 @@ def show_user_profile():
 
 @app.route("/my_profile")
 def show_my_profile():
-    if session.get('user'):
-        email = session.get('user')
+    if session.get('user_email'):
+        email = session.get('user_email')
         users = model.session.query(model.User)
         user = users.filter(model.User.email == email).one()
         heading = "My Profile"
@@ -107,17 +108,17 @@ def show_my_profile():
 
 @app.route("/all_movies")
 def show_all_movies():
-    if session.get('user'):
-        count = session.get('count')
+    # initializing movies_seen
+    if session.get('user_email'):
+        movies_seen = session.get('count')
     else:
-        count = 0
+        movies_seen = 0
+
     movies = model.session.query(model.Movie)
-    movies_list = movies.offset(count).limit(10).all()
-    print movies_list
+    movies_list = movies.offset(movies_seen).limit(10).all()
 
-    if session.get('user'):
+    if session.get('user_email'):
         session['count'] += 10
-
 
     return render_template("all_movies.html", movies=movies_list)
 
@@ -126,9 +127,34 @@ def show_movie_profile():
     title = request.args.get("title")
     movies = model.session.query(model.Movie)
     movie = movies.filter(model.Movie.title == title).one()
+
+    # check user.ratings to see if there's 
+    # a rating with movie_id == movie.id
+
     return render_template("movie_profile.html", movie=movie)
+
+# Rate Movie
+
+@app.route("/rate_movie", methods=['GET'])
+def rate_movie():
+    rating = request.args.get("rating")
+    movie_id = request.args.get("movie_id")
+    user_id = session.get('user_id')
+
+    new_rating = model.Rating(movie_id=movie_id, 
+                              user_id=user_id,
+                              rating=rating)
+    model.session.add(new_rating)
+    model.session.commit()
+
+    flash("Rating successful")
+    return render_template("welcome.html")
+
+
 
 
 if __name__ == "__main__":
     app.run(debug=True)
 
+# TODO
+# escape ampersands in movie titles

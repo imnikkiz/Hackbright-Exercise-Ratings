@@ -62,3 +62,6 @@ def main(session):
 
 if __name__ == "__main__":
     main(model.session)
+
+# TODO
+# CSV reader
