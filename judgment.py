@@ -41,9 +41,9 @@ def signup():
         flash("Email already in database. Please try again.")
         return show_signup()
 
-    flash("Signup successful")
-    session['user_email'] = user_email
-    return render_template("welcome.html")
+    session.clear()
+    flash("Signup successful. Please log in.")
+    return show_login()
 
 # Log In / Log Out
 
@@ -151,8 +151,17 @@ def show_movie_profile(movie_id=None):
     movie_ratings = ratings.filter(model.Rating.movie_id == movie.id)
     user_rating = movie_ratings.filter(model.Rating.user_id == session.get('user_id')).first()
 
+    prediction = None
+    if session.get('user_email'):
+        email = session.get('user_email')
+        users = model.session.query(model.User)
+        user = users.filter(model.User.email == email).one()
+        if not user_rating:
+            prediction = user.predict_rating(movie)
+
     return render_template("movie_profile.html", movie=movie,
-                                                 rating=user_rating)
+                                                 rating=user_rating,
+                                                 prediction=prediction)
 
 # Rate Movie
 
@@ -161,33 +170,27 @@ def rate_movie():
     rating = request.args.get("rating")
     movie_id = request.args.get("movie_id")
     user_id = session.get('user_id')
-
-    new_rating = model.Rating(movie_id=movie_id, 
-                              user_id=user_id,
-                              rating=rating)
-    model.session.add(new_rating)
-    model.session.commit()
-
-    flash("Rating successful")
-    return show_movie_profile(movie_id=movie_id)
-
-@app.route("/update_rating", methods=['GET'])
-def update_movie():
-    rating = request.args.get("rating")
-    movie_id = request.args.get("movie_id")
-    user_id = session.get('user_id')
-
-
-    model.session.query(model.Rating).\
-        filter(model.Rating.movie_id == movie_id,
-            model.Rating.user_id == user_id).\
-        update({"rating": rating})
     
-    model.session.commit()
+    ratings = model.session.query(model.Rating)
+    
+    old_rating = ratings.filter(
+                    model.Rating.movie_id == movie_id,
+                    model.Rating.user_id == user_id
+                    ).first()
 
-    flash("update successful")
+    if old_rating:
+        old_rating.rating = rating
+        model.session.commit()
+        flash("update successful")
+    else:
+        new_rating = model.Rating(movie_id=movie_id, 
+                                  user_id=user_id,
+                                  rating=rating)
+        model.session.add(new_rating)
+        model.session.commit()
+        flash("Rating successful")
+
     return show_movie_profile(movie_id=movie_id)
-
 
 
 if __name__ == "__main__":

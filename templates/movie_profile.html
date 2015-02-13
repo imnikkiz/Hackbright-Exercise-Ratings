@@ -10,10 +10,18 @@
     {% if session.get('user_email') %}
         {% if rating %}
         <h4> Your current rating is {{ rating.rating }} </h4>
-        <form action="/update_rating" method="get">
+        {% endif %}
+        {% if not rating %}
+            {% if prediction %}
+            <h3>We predict you will rate this movie {{ '%0.2f' % prediction  }}.</h3>
+            {% else %}
+            <h3>Sorry! You haven't rated enough movies for us to calculate a prediction.</h3>
+            {% endif %}    
+        {% endif %}
+        <form action="/rate_movie" method="get">
             <div class="form-group">
                 <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio1" value="1"> 1
+                    <input type="radio" name="rating" id="inlineRadio1" required value="1"> 1
                 </label>
                 <label class="radio-inline">
                     <input type="radio" name="rating" id="inlineRadio2" value="2"> 2
@@ -29,33 +37,11 @@
                 </label>
             </div>
             <input type='hidden' name='movie_id' value='{{ movie.id }}'>
-            <button type="submit" class="btn btn-default">Update!</button>
+            <button type="submit" class="btn btn-default">{% if rating %}Update!{% else %}Rate!{% endif %}</button>
         </form>
         {% endif %}
 
     <!--show form if user is signed in AND hasn't rated a movie -->
-        {% if not rating %}
-        <form action="/rate_movie" method="get">
-            <div class="form-group">
-                <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio1" value="1"> 1
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio2" value="2"> 2
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio3" value="3"> 3
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio3" value="4"> 4
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="rating" id="inlineRadio3" value="5"> 5
-                </label>
-            </div>
-            <input type='hidden' name='movie_id' value='{{ movie.id }}'>
-            <button type="submit" class="btn btn-default">Rate!</button>
-        </form>
-        {% endif %}
-    {% endif %}
-{% endblock %}
+
+  
+    {% endblock %}
